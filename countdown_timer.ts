@@ -1,38 +1,32 @@
-#!/usr/bin/env python3
-from PyInquirer import prompt
+import questionary
 from datetime import datetime, timedelta
 import time
-import sys
 import os
 import platform
+import sys
 
 def beep():
     if platform.system() == "Windows":
         import winsound
-        winsound.Beep(1000, 500)  # frequency, duration
+        winsound.Beep(1000, 500)
     else:
-        # For Mac/Linux
         os.system('printf "\a"')
 
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def main():
-    questions = [
-        {
-            'type': 'input',
-            'name': 'userInput',
-            'message': '⏱ Please enter the amount of seconds (max 60):',
-            'validate': lambda val: (
-                "Please enter a valid number" if not val.isdigit()
-                else "Seconds must be 60 or less" if int(val) > 60
-                else True
-            )
-        }
-    ]
+    user_input = questionary.text("⏱ Please enter the amount of seconds (max 60):").ask()
 
-    answers = prompt(questions)
-    input_seconds = int(answers['userInput'])
+    if not user_input.isdigit():
+        print("❌ Please enter a valid number.")
+        return
+
+    input_seconds = int(user_input)
+
+    if input_seconds > 60:
+        print("❌ Seconds must be 60 or less.")
+        return
 
     def start_timer(seconds):
         end_time = datetime.now() + timedelta(seconds=seconds)
@@ -50,7 +44,6 @@ def main():
 
             minutes = remaining // 60
             secs = remaining % 60
-
             progress = int(((total - remaining) / total) * 30)
             bar = "█" * progress + "-" * (30 - progress)
 
@@ -63,4 +56,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
